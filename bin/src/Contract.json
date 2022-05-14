@@ -1,0 +1,65 @@
+{
+    "contractName": "Contract",
+    "abi": [],
+    "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/praise/Documents/Professional Code/Fractionless/fractionlesscontracts/src/Contract.sol\":\"Contract\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/praise/Documents/Professional Code/Fractionless/fractionlesscontracts/src/Contract.sol\":{\"keccak256\":\"0x5c904b2442d79805d7954255fbf63682de8f0181bd6bc2258d185952910a1f9e\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://bc8a3dedf03257b662056f27daa21d81dbca992b30f72ca5cd14d527bce92590\",\"dweb:/ipfs/QmVrWLhxYtY4StYVED3LyLVw5SLkcth2SjfTJABdsTuXBe\"]}},\"version\":1}",
+    "bytecode": "6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212204badc2c8d0cf5e99a7a0be8673dfb2d113f4cb4b3d0d31f624f2658c4761a9e064736f6c634300080a0033",
+    "deployedBytecode": "6080604052600080fdfea26469706673582212204badc2c8d0cf5e99a7a0be8673dfb2d113f4cb4b3d0d31f624f2658c4761a9e064736f6c634300080a0033",
+    "sourceMap": "64:20:0:-:0;;;;;;;;;;;;;;;;;;;",
+    "deployedSourceMap": "64:20:0:-:0;;;;;",
+    "sourcePath": "/Users/praise/Documents/Professional Code/Fractionless/fractionlesscontracts/src/Contract.sol",
+    "compiler": {
+        "name": "solc",
+        "version": "0.8.10+commit.fc410830"
+    },
+    "ast": {
+        "absolutePath": "/Users/praise/Documents/Professional Code/Fractionless/fractionlesscontracts/src/Contract.sol",
+        "exportedSymbols": {
+            "Contract": [
+                2
+            ]
+        },
+        "id": 3,
+        "license": "UNLICENSED",
+        "nodeType": "SourceUnit",
+        "nodes": [
+            {
+                "id": 1,
+                "literals": [
+                    "solidity",
+                    "0.8",
+                    ".10"
+                ],
+                "nodeType": "PragmaDirective",
+                "src": "39:23:0"
+            },
+            {
+                "abstract": false,
+                "baseContracts": [],
+                "canonicalName": "Contract",
+                "contractDependencies": [],
+                "contractKind": "contract",
+                "fullyImplemented": true,
+                "id": 2,
+                "linearizedBaseContracts": [
+                    2
+                ],
+                "name": "Contract",
+                "nameLocation": "73:8:0",
+                "nodeType": "ContractDefinition",
+                "nodes": [],
+                "scope": 3,
+                "src": "64:20:0",
+                "usedErrors": []
+            }
+        ],
+        "src": "39:46:0"
+    },
+    "functionHashes": {},
+    "gasEstimates": {
+        "creation": {
+            "codeDepositCost": "12600",
+            "executionCost": "66",
+            "totalCost": "12666"
+        }
+    }
+}
