@@ -10,7 +10,6 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract FractionToken is ERC20 {
     uint256 public power = 10**18;
     mapping(address => uint256) public mintTime;
-
     mapping(address => bool) public isAdmin;
 
     constructor() ERC20("Fraction Token", "FRACT", 18) {

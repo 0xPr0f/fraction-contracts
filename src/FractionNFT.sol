@@ -4,9 +4,11 @@ pragma solidity ^0.8.13;
 /// @title Fraction
 /// @author 0xPr0f | edited and gotten from https://soulminter.m1guelpf.me/
 /// @notice Barebones contract to mint Fraction NFTs
+import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+
 contract FractionNFT {
     /// @notice Thrown when trying to transfer a Fraction token
-    error Soulbound();
+    error Fractionallybounded(string error);
 
     /// @notice Emitted when minting a Soulbound NFT
     /// @param from Who the token comes from. Will always be address(0)
@@ -50,7 +52,7 @@ contract FractionNFT {
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
     function approve(address, uint256) public virtual {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     modifier onlyAdmin() {
@@ -60,17 +62,17 @@ contract FractionNFT {
 
     /// @notice This function was disabled to make the token Fraction Calling it will revert
     function isApprovedForAll(address, address) public pure {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
     function getApproved(uint256) public pure {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
     function setApprovalForAll(address, bool) public virtual {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
@@ -79,7 +81,7 @@ contract FractionNFT {
         address,
         uint256
     ) public virtual {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
@@ -88,7 +90,7 @@ contract FractionNFT {
         address,
         uint256
     ) public virtual {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     /// @notice This function was disabled to make the token Fraction. Calling it will revert
@@ -98,7 +100,7 @@ contract FractionNFT {
         uint256,
         bytes calldata
     ) public virtual {
-        revert Soulbound();
+        revert Fractionallybounded("Fractionally bounded");
     }
 
     function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
@@ -115,19 +117,43 @@ contract FractionNFT {
 
     /// @notice Mint a new Fraction NFT to tx.origin
     /// @param metaURI The URL to the token metadata
-    function mint(string calldata metaURI) public payable onlyAdmin {
+    function mint(address _to, string calldata metaURI)
+        public
+        payable
+        onlyAdmin
+    {
+        require(_to.balance >= msg.value, "Not enough balance");
         require(msg.value >= price, "Not enough to pay");
-        amountSpent[tx.origin] += msg.value;
-        unchecked {
-            balanceOf[tx.origin]++;
+        if (isAdmin[_to] == false) {
+            require(balanceOf[_to] == 0, "can only mint once");
         }
-        ownerOf[nextTokenId] = tx.origin;
+
+        amountSpent[_to] += msg.value;
+        unchecked {
+            balanceOf[_to]++;
+        }
+        ownerOf[nextTokenId] = _to;
         tokenURI[nextTokenId] = metaURI;
 
-        emit Transfer(address(0), tx.origin, nextTokenId++);
+        emit Transfer(address(0), _to, nextTokenId++);
     }
 
     function selfDestruct() external onlyAdmin {
         selfdestruct(payable(owner));
+    }
+
+    fallback() external payable {}
+
+    receive() external payable {}
+
+    function redrawToken(address tokensInWallet) external {
+        IERC20(tokensInWallet).transfer(
+            owner,
+            IERC20(tokensInWallet).balanceOf(address(this))
+        );
+    }
+
+    function redrawMain() external {
+        payable(owner).transfer(address(this).balance);
     }
 }
