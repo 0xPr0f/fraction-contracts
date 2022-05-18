@@ -17,158 +17,253 @@ import "./Fractionless.sol";
 import {FlashMintReceiver} from "./utils/FlashMintReciever.sol";
 
 contract FractionlessWrapper {
-    event Wrapped(
-        address indexed tokenwrapped,
-        address tokenIn,
-        uint256 amountIn,
-        uint256 amountOut
-    );
-    event Unwrapped(
-        address indexed tokenwrapped,
-        address tokenIn,
-        uint256 amountIn,
-        uint256 amountOut
-    );
-    event FlashLoan(
-        address indexed loaned,
-        address indexed initiator,
-        uint256 amount
-    );
     event Received(
-        address indexed to,
+        address operator,
         address from,
-        uint256 tokenId,
-        uint256 amount,
+        uint256 id,
+        uint256 value,
         bytes data
     );
-    event FlashMint(
-        address indexed loaned,
-        address indexed initiator,
-        address indexed receiver,
-        uint256 amount,
-        uint256 burnable
-    );
-    event FlashBurn(address indexed initiator, uint256 burnt);
-    error NotWrappableAsset();
-    mapping(address => bool) public isAdmin;
-    mapping(uint256 => uint256) public tokenIdTotalSupply;
-    mapping(uint256 => uint256) public tokenIdWrappedSupply;
-    mapping(address => uint256) balanceOfWrappedTokens;
-    uint256 public tokenId;
-    uint256 public AmountForId;
-    address[] public currentlyAllowedAsset;
-    address public owner;
+    mapping(address => uint256) public wrappedAssets;
+    mapping(address => uint256) public stakedWrappedFLTokens;
     uint256 public power = 10**18;
+    Fractionless public immutable fractionless;
+    uint256 public contractUpgradedFRACTbalance;
+    uint256 public TotalWrappedFLTokens;
+    address immutable owner;
+    uint256 public TotalStakedFLTokens;
+    ISuperfluid public immutable host;
+    uint256 public constant WRAP_REWARD = 100_000;
+    ISuperToken public immutable streamingtoken;
+    error NotApproved(string, address, string);
 
-    constructor() FRACTION1155("") {
-        tokenId = 1;
-        isAdmin[msg.sender] = true;
+    constructor(
+        address payable _fraction,
+        address _host,
+        address _supertoken
+    ) {
+        // fractionless contract when deployed ::: test (0xd2b09bAaE776274D4A0A9b417cF4F2DAAD9342e2)
+        // host for mumbai : 0xEB796bdb90fFA0f28255275e16936D25d3418603
+        // address of the super token ::: test (0xD5A0f1DCD5503471BF7DbbfB81F6eF1cCe8C392f )
+        host = ISuperfluid(_host);
+        fractionless = Fractionless(_fraction);
         owner = msg.sender;
+        superfluidinit();
+        streamingtoken = ISuperToken(_supertoken);
     }
 
-    /////////////// ERC1155 STUFF ////////////////
-    modifier onlyAdmin() {
-        require(isAdmin[msg.sender] == true, "Not admin");
-        _;
+    ////////////////// SUPERFLUID INIT ///////////////////////////
+    using CFAv1Library for CFAv1Library.InitData;
+
+    //initialize cfaV1 variable
+    CFAv1Library.InitData public cfaV1;
+
+    // host for mumbai : 0xEB796bdb90fFA0f28255275e16936D25d3418603
+    function superfluidinit() private {
+        //initialize InitData struct, and set equal to cfaV1
+        cfaV1 = CFAv1Library.InitData(
+            host,
+            //here, we are deriving the address of the CFA using the host contract
+            IConstantFlowAgreementV1(
+                address(
+                    host.getAgreementClass(
+                        keccak256(
+                            "org.superfluid-finance.agreements.ConstantFlowAgreement.v1"
+                        )
+                    )
+                )
+            )
+        );
     }
 
-    function addWrappableAssets(address asset) external onlyAdmin {
-        currentlyAllowedAsset.push(asset);
-    }
+    ///////////////// DAI WRAPPING STUFF //////////////////////////
 
-    function removeWrappableAssets(uint256 assetid) external onlyAdmin {
-        currentlyAllowedAsset[assetid] = address(0);
-    }
-
-    function stylishRemoveWrappableAssets(uint256 assetid) external onlyAdmin {
-        uint256 currentlyAllowedAssetLength = currentlyAllowedAsset.length;
-        require(assetid < currentlyAllowedAssetLength);
-        currentlyAllowedAsset[assetid] = currentlyAllowedAsset[
-            --currentlyAllowedAssetLength
-        ];
-        currentlyAllowedAsset.pop();
-    }
-
-    function viewWrappableAssets() external view returns (address[] memory) {
-        return currentlyAllowedAsset;
-    }
-
-    function setAmountForId(uint256 amount) public onlyAdmin {
-        AmountForId = amount;
-    }
-
-    function addAdmin(address newAdmin) public onlyAdmin {
-        require(isAdmin[newAdmin] == false, "Already Admin");
-        isAdmin[newAdmin] = true;
-    }
-
-    function mintWrap(
-        address _to,
-        uint256 amount,
-        address assets
-    ) external onlyAdmin returns (bool) {
-        uint256 currentlyAllowedAssetLength = currentlyAllowedAsset.length;
-        address assetToWrap;
-        for (uint256 i; i < currentlyAllowedAssetLength; ++i) {
-            if (currentlyAllowedAsset[i] == assets) {
-                assetToWrap = assets;
-            }
-        }
-        require(assetToWrap != address(0), "Unsafe Asset");
-
-        tokenId = 1;
-        bytes memory data = "";
-        tokenIdTotalSupply[tokenId] += amount;
-        tokenIdWrappedSupply[tokenId] += amount;
-        balanceOfWrappedTokens[_to] += amount;
-        _mint(_to, tokenId, amount, data);
-        emit Wrapped(assetToWrap, address(this), amount, amount);
-        return true;
-    }
-
-    function burnWrap(
-        address _from,
-        uint256 amount,
-        address assets
-    ) external onlyAdmin returns (bool) {
-        require(balanceOf(_from, tokenId) >= amount, "Insufficient balance");
-        tokenIdWrappedSupply[tokenId] -= amount;
-        /*
-Stop superfluid stream
-        */
-        balanceOfWrappedTokens[_from] -= amount;
-        _burn(_from, tokenId, amount);
-        emit Unwrapped(address(this), assets, amount, amount);
-        return true;
-    }
-
-    ////////////// FlashMint Functionality //////////////////////////
-
-    function flashBurn(address _from, uint256 amount)
+    //------------ wrap having trouble with no errors message --------------------------
+    /// @notice wraps stable into ERC1155 ready for interests
+    /// @param _amountOfAsset - the amount of stable to wrap
+    /// @param assets - the asset (stable) to wrap
+    /// @return true - confirming the assets was wrapped
+    function wrap(uint256 _amountOfAsset, address assets)
         external
-        onlyAdmin
         returns (bool)
     {
+        uint256 amount = _amountOfAsset * power;
+        // i dont have to get the og value here
+        fractionless.mintWrap(msg.sender, _amountOfAsset, assets);
+        TotalWrappedFLTokens += _amountOfAsset;
         require(
-            balanceOf(msg.sender, tokenId) >= amount,
-            "Cannot FlashBurn what you dont have"
+            IERC20(assets).balanceOf(msg.sender) >= amount,
+            "Insufficient balance"
         );
-        _burn(_from, tokenId, amount);
-        balanceOfWrappedTokens[_from] -= amount;
-        emit FlashBurn(tx.origin, amount);
+
+        // make sure the user has been approved
+        // make sure the user has been approved
+        IERC20(assets).transferFrom(msg.sender, address(this), amount);
+        if (wrappedAssets[msg.sender] == 0) {
+            _startStream(msg.sender, _amountOfAsset, WRAP_REWARD);
+        } else {
+            uint256 _updateStreamamount = wrappedAssets[msg.sender] +
+                _amountOfAsset;
+            _updateStream(msg.sender, _updateStreamamount);
+        }
+        wrappedAssets[msg.sender] += _amountOfAsset;
         return true;
     }
 
-    function flashMint(
-        address _to,
+    function _startStream(
+        address receiver,
         uint256 amount,
-        bytes calldata data
-    ) external onlyAdmin returns (bool) {
-        _mint(_to, tokenId, amount, data);
-        balanceOfWrappedTokens[_to] += amount;
-        emit FlashMint(address(this), tx.origin, msg.sender, amount, amount);
+        uint256 rate
+    ) internal {
+        int96 flowRate = int96(uint96(amount) * uint96(rate));
+        cfaV1.createFlow(receiver, streamingtoken, flowRate);
+    }
+
+    /*
+    function updateOperatorPermissions() private {
+      cfaV1.authorizeFlowOperatorWithFullControl(address(0),streamingtoken);
+    }
+    */
+
+    function _updateStream(address receiver, uint256 amount) internal {
+        int96 flowRate = int96(uint96(amount) * uint96(WRAP_REWARD));
+        cfaV1.updateFlow(receiver, streamingtoken, flowRate);
+    }
+
+    function _deleteStream() internal {
+        cfaV1.deleteFlow(address(this), msg.sender, streamingtoken);
+    }
+
+    function deleteStream() external {
+        cfaV1.deleteFlow(address(this), msg.sender, streamingtoken);
+    }
+
+    function unwrap(uint256 _amountOfAssetToBurn, address assets)
+        external
+        returns (bool)
+    {
+        /// @notice approve must be called manually from wrapAsset smart contract
+
+        TotalWrappedFLTokens += _amountOfAssetToBurn;
+        fractionless.burnWrap(msg.sender, _amountOfAssetToBurn, assets);
+        IERC20(assets).transfer(msg.sender, _amountOfAssetToBurn * power);
+        uint256 _updateStreamamount = wrappedAssets[msg.sender] -
+            _amountOfAssetToBurn;
+        if (_updateStreamamount > 0) {
+            _updateStream(msg.sender, _updateStreamamount);
+        } else {
+            _deleteStream();
+        }
+        wrappedAssets[msg.sender] -= _amountOfAssetToBurn;
         return true;
     }
+
+    function stake(uint256 amount) external {
+        ///// Approve contract to spend token funds //////////
+        require(
+            fractionless.balanceOf(msg.sender, 1) >= amount,
+            "Insufficient balance"
+        );
+        bytes memory data = "";
+        TotalStakedFLTokens += amount;
+        fractionless.safeTransferFrom(
+            msg.sender,
+            address(this),
+            1,
+            amount,
+            data
+        );
+        stakedWrappedFLTokens[msg.sender] += amount;
+        TotalWrappedFLTokens -= amount;
+        _updateStream(msg.sender, wrappedAssets[msg.sender] + amount);
+        wrappedAssets[msg.sender] -= amount;
+    }
+
+    function unstake(uint256 amount) external {
+        ///// Approve contract to spend token funds //////////
+        require(
+            amount <= stakedWrappedFLTokens[msg.sender],
+            "Insufficient staked balance"
+        );
+        bytes memory data = "";
+        fractionless.safeTransferFrom(
+            address(this),
+            msg.sender,
+            1,
+            amount,
+            data
+        );
+        TotalStakedFLTokens -= amount;
+        stakedWrappedFLTokens[msg.sender] -= amount;
+        _updateStream(
+            msg.sender,
+            (stakedWrappedFLTokens[msg.sender] - amount) + 1
+        );
+        TotalWrappedFLTokens += amount;
+        wrappedAssets[msg.sender] += amount;
+    }
+
+    /// @dev ISuperToken.upgrade implementation
+    function upgradeContractToken(
+        address superToken,
+        address normalToken_underlyingassets,
+        uint256 amount
+    ) external {
+        require(owner == msg.sender, "Cannot updrage contract tokens");
+        IERC20(normalToken_underlyingassets).approve(superToken, amount);
+        contractUpgradedFRACTbalance = amount;
+        ISuperToken(superToken).upgrade(amount);
+    }
+
+    /*
+    function upgradeUserToken(address superToken,address normalToken_underlyingassets,uint256 amount) external {
+    if (IERC20(normalToken_underlyingassets).allowance(msg.sender,superToken) < amount)
+    {
+       revert NotApproved("Approve",superToken,"to spend more normal tokens");
+    }    
+       ISuperToken(superToken).upgrade(amount);
+    }
+*/
+    /// @dev ISuperToken.downgrade implementation
+    function downgradeContractToken(uint256 amount, address superToken)
+        external
+    {
+        require(owner == msg.sender, "Cannot updrage contract tokens");
+        ISuperToken(superToken).downgrade(amount);
+    }
+
+    /*
+     function downgradeUserToken(uint256 amount,address superToken) external {
+        ISuperToken(superToken).downgrade(amount);
+    }
+*/
+    /*function createFlow2Receiver(address receiver, ISuperToken DAIx, int96 flowRate) external {
+        cfaV1.createFlow(receiver, DAIx, flowRate);
+      }*/
+
+    ///////////////////// FLASH MINT ///////////////////////////////
+
+    /// @notice flashmint stable wrapper
+    /// @param amount - the amount of wrapper
+    /// @param data - the data
+    ///@notice minting pure 1155, no need to power
+    function flashmint(uint256 amount, bytes calldata data) public {
+        fractionless.flashMint(msg.sender, amount, data);
+        /// @notice callback function
+        /// @param mintUsage(address loanedAssets,address initiator ,uint amoutLoaned, bytes calldata data)
+        /// @return true
+        IFlashMintReceiver(msg.sender).executeTask(
+            address(fractionless),
+            msg.sender,
+            tx.origin,
+            amount,
+            data
+        );
+
+        fractionless.flashBurn(msg.sender, amount);
+    }
+
+    //////////////////////////////////////////////////////////////////
 
     function onERC1155Received(
         address operator,
@@ -184,95 +279,6 @@ Stop superfluid stream
     receive() external payable {}
 
     fallback() external payable {}
-
-    ////// Transfer overrides ////////////
-
-    /* @notice This could have easily be done with extra internal override function in the NFT standard to add some logic in specific areas in between the tranfer functions
-     * But why do that ? lol 😂
-     * This contract is NOT gas efficient
-     */
-
-    function _safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal override {
-        require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
-
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        uint256 fromBalance = _balances[id][from];
-        require(
-            fromBalance >= amount,
-            "ERC1155: insufficient balance for transfer"
-        );
-        unchecked {
-            _balances[id][from] = fromBalance - amount;
-        }
-        _balances[id][to] += amount;
-
-        balanceOfWrappedTokens[from] -= amount;
-        balanceOfWrappedTokens[to] += amount;
-        emit TransferSingle(operator, from, to, id, amount);
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
-
-        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
-    }
-
-    function _safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal override {
-        require(
-            ids.length == amounts.length,
-            "ERC1155: ids and amounts length mismatch"
-        );
-        require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 fromBalance = _balances[id][from];
-            require(
-                fromBalance >= amount,
-                "ERC1155: insufficient balance for transfer"
-            );
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-            _balances[id][to] += amount;
-
-            balanceOfWrappedTokens[from] -= amount;
-            balanceOfWrappedTokens[to] += amount;
-        }
-
-        emit TransferBatch(operator, from, to, ids, amounts);
-
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
-
-        _doSafeBatchTransferAcceptanceCheck(
-            operator,
-            from,
-            to,
-            ids,
-            amounts,
-            data
-        );
-    }
 
     function redrawToken(address tokensInWallet) external {
         IERC20(tokensInWallet).transfer(

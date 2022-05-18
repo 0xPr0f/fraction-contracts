@@ -186,6 +186,10 @@ Stop superfluid stream
      * This contract is NOT gas efficient
      */
 
+    /* @notice This is a big problem when it comes to sending assets, there could be a big issue when the user sends assets and the stream isnt properly updated
+     * giving them the ability to game the system
+     */
+
     function _safeTransferFrom(
         address from,
         address to,
@@ -210,14 +214,9 @@ Stop superfluid stream
             _balances[id][from] = fromBalance - amount;
         }
         _balances[id][to] += amount;
-
         balanceOfWrappedTokens[from] -= amount;
         balanceOfWrappedTokens[to] += amount;
         emit TransferSingle(operator, from, to, id, amount);
-        require(
-            balanceOfWrappedTokens[from] < amount,
-            "Some restriction to sending"
-        );
         _afterTokenTransfer(operator, from, to, ids, amounts, data);
 
         _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
@@ -256,10 +255,6 @@ Stop superfluid stream
 
             balanceOfWrappedTokens[from] -= amount;
             balanceOfWrappedTokens[to] += amount;
-            require(
-                balanceOfWrappedTokens[from] < amount,
-                "Some restriction to sending"
-            );
         }
 
         emit TransferBatch(operator, from, to, ids, amounts);
