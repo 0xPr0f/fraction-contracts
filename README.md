@@ -1,7 +1,8 @@
 # Fraction contracts
 
 This contracts were made in a short period of time for a hackathons and was not properly audited.  
-This contracts may serve as templates for other projects.  
+This contracts may serve as templates for other projects.   
+This contracts may contains severe bugs (it actually contains some bugs, but they are features 😝)
 The contracts of this project will constantly be worked on (updated) and upgraded.
 
 ### Deployed on Rinkeby
