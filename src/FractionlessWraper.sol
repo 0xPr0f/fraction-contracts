@@ -42,9 +42,9 @@ contract FractionlessWrapper {
         address _host,
         address _supertoken
     ) {
-        // fractionless contract when deployed ::: test (0xd2b09bAaE776274D4A0A9b417cF4F2DAAD9342e2)
+        // fractionless contract when deployed ::: (0x147Aef142CCebf9902ec57A369D4aB1B6126Fc69)
         // host for mumbai : 0xEB796bdb90fFA0f28255275e16936D25d3418603
-        // address of the super token ::: test (0xD5A0f1DCD5503471BF7DbbfB81F6eF1cCe8C392f )
+        // address of the super token ::: (0xbcC35477b5b360713C8CE874EE936a0FB14b5E3c)
         host = ISuperfluid(_host);
         fractionless = Fractionless(_fraction);
         owner = msg.sender;
