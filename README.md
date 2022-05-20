@@ -21,7 +21,8 @@ https://mumbai.polygonscan.com/address/0x147Aef142CCebf9902ec57A369D4aB1B6126Fc6
 
 #### FractionWrapper : [FRACTWRAP](https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C)
 
-https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C
+https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C  
+due to reasons, contract could not be verified, but [here is the ABI](https://bafybeigggr4oxyghkgpx5o4gl23rsw4lugqewptuffegvps7uaoh44vqsy.ipfs.infura-ipfs.io/)
 
 #### NFT Registry : [NFTRegistry](https://mumbai.polygonscan.com/address/0x4DACaF23216889EA45BF32Ab6411F7BaF2E95617)
 
