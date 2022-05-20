@@ -126,7 +126,7 @@ contract FractionlessWrapper {
     */
 
     function _updateStream(address receiver, uint256 amount) internal {
-        int96 flowRate = int96(uint96(amount) * uint96(WRAP_REWARD));
+        int96 flowRate = int96(uint96(amount) * uint96(WRAP_REWARD)) + 20;
         cfaV1.updateFlow(receiver, streamingtoken, flowRate);
     }
 
@@ -159,7 +159,7 @@ contract FractionlessWrapper {
     }
 
     function stake(uint256 amount) external {
-        ///// Approve contract to spend token funds //////////
+        ///// Approve contract to spend fractionless token funds //////////
         require(
             fractionless.balanceOf(msg.sender, 1) >= amount,
             "Insufficient balance"

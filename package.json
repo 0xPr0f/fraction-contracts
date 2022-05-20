@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "@superfluid-finance/ethereum-contracts": "^1.2.2"
+  }
+}

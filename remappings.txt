@@ -1,5 +1,5 @@
-openzeppelin-contracts/=lib/openzeppelin-contracts/
-forge-std/=lib/forge-std/src/
-ds-test/=lib/ds-test/src/
-ethereum-contracts/=lib/ethereum-contracts/
 solmate/=lib/solmate/src/
+forge-std/=lib/forge-std/src/
+openzeppelin-contracts/=lib/openzeppelin-contracts/
+ethereum-contracts/=lib/ethereum-contracts/
+ds-test/=lib/ds-test/src/

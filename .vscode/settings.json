@@ -1,5 +1,6 @@
 {
   "solidity.packageDefaultDependenciesContractsDirectory": "src",
   "solidity.packageDefaultDependenciesDirectory": "lib",
-  "solidity.compileUsingRemoteVersion": "v0.8.13+commit.abaa5c0e"
+  "solidity.compileUsingRemoteVersion": "v0.8.13+commit.abaa5c0e",
+  "solidity.compileUsingLocalVersion": "/Users/praise/Documents/EthglobalHackMoney2022/Fractionless/fraction-contracts/soljson-v0.8.13+commit.abaa5c0e.js"
 }
