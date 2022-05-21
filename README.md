@@ -37,3 +37,19 @@ https://mumbai.polygonscan.com/address/0x4DACaF23216889EA45BF32Ab6411F7BaF2E9561
 #### FractionNFT : [FractionNFT](https://mumbai.polygonscan.com/address/0x8410785dc33Af2bf5c885275e5E55585af6dCfd7)
 
 https://mumbai.polygonscan.com/address/0x8410785dc33Af2bf5c885275e5E55585af6dCfd7
+
+
+
+
+# contract 
+### This contracts where made using foundry
+
+To get the contract running, clone the repo and the run 
+```
+forge install
+```
+and then 
+```
+npm install
+``` 
+Then you build the contracts and write test and fixs some problems lol
