@@ -1,9 +1,13 @@
-# Fraction contracts
-
 This contracts were made in a short period of time for a hackathons and was not properly audited.  
 This contracts may serve as templates for other projects.  
 This contracts may contains severe bugs (it actually contains some bugs, but they are features 😝).  
 The contracts of this project will constantly be worked on (updated) and upgraded.
+
+### [Fraction interface](https://github.com/0xPr0f/Fraction-interface/tree/maindev)
+
+# Fraction contracts
+
+This is the contracts that governs all fractions logic, this contracts include the wrapping of erc20(stables) mechanism, the staking of wrapped erc20(stables), Fraction bounded NFTs (soul bounded) to increase rewards earned by verification, The in-built ability to perform flash loan(flash-mint) (havent test lol)
 
 ### Deployed on Mumbai : All contracts should be verified to see the code
 
