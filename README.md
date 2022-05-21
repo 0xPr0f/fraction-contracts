@@ -53,3 +53,6 @@ and then
 npm install
 ``` 
 Then you build the contracts and write test and fixs some problems lol
+
+
+For the flash mint functionality to work, the reciever (if a contract) has to have a onERC1155Receiver function (implementation)
