@@ -11,7 +11,7 @@
 
 This is the contracts that governs all fractions logic, this contracts include the wrapping of erc20(stables) mechanism, the staking of wrapped erc20(stables), Fraction bounded NFTs (soul bounded) to increase rewards earned by verification, The in-built ability to perform flash loan(flash-mint) (havent test lol)
 
-### Deployed on Mumbai : All contracts should be verified to see the code
+### Deployed on Mumbai : most contracts should be verified to see the code
 
 #### Fraction Token : [FRACT](https://mumbai.polygonscan.com/address/0x953f88014255241332d8841c34921572db112d65)
 
@@ -30,29 +30,30 @@ https://mumbai.polygonscan.com/address/0x147Aef142CCebf9902ec57A369D4aB1B6126Fc6
 https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C  
 due to reasons, contract could not be verified, but [here is the ABI](https://bafybeigggr4oxyghkgpx5o4gl23rsw4lugqewptuffegvps7uaoh44vqsy.ipfs.infura-ipfs.io/)
 
-#### NFT Registry : [NFTRegistry](https://mumbai.polygonscan.com/address/0x4DACaF23216889EA45BF32Ab6411F7BaF2E95617)
+#### NFT Registry : [NFTRegistry](https://mumbai.polygonscan.com/address/0x34c93Cf06bADc3c64c18d02DD2dFb5f43a32C472)
 
-https://mumbai.polygonscan.com/address/0x4DACaF23216889EA45BF32Ab6411F7BaF2E95617
+https://mumbai.polygonscan.com/address/0x34c93Cf06bADc3c64c18d02DD2dFb5f43a32C472
 
-#### FractionNFT : [FractionNFT](https://mumbai.polygonscan.com/address/0x8410785dc33Af2bf5c885275e5E55585af6dCfd7)
+#### FractionNFT : [FractionNFT](https://mumbai.polygonscan.com/address/0x8b78A188f3941BdF5BcDE61A0c32C68A4044fdbB)
 
-https://mumbai.polygonscan.com/address/0x8410785dc33Af2bf5c885275e5E55585af6dCfd7
+https://mumbai.polygonscan.com/address/0x8b78A188f3941BdF5BcDE61A0c32C68A4044fdbB
 
+# contract
 
-
-
-# contract 
 ### This contracts where made using foundry
 
-To get the contract running, clone the repo and the run 
+To get the contract running, clone the repo and the run
+
 ```
 forge install
 ```
-and then 
+
+and then
+
 ```
 npm install
-``` 
-Then you build the contracts and write test and fixs some problems lol
+```
 
+Then you build the contracts and write test and fixs some problems lol
 
 For the flash mint functionality to work, the reciever (if a contract) has to have a onERC1155Receiver function (implementation)
