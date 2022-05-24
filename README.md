@@ -40,9 +40,9 @@ https://mumbai.polygonscan.com/address/0x8b78A188f3941BdF5BcDE61A0c32C68A4044fdb
 
 # contract
 
-### This contracts where made using foundry
+### These contracts were made using foundry
 
-To get the contract running, clone the repo and the run
+To get the contracts running, clone the repo and then run
 
 ```
 forge install
