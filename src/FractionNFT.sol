@@ -134,7 +134,8 @@ contract FractionNFT {
         }
         ownerOf[nextTokenId] = _to;
         tokenURI[nextTokenId] = metaURI;
-
+        (bool success, ) = payable(address(this)).call{value: msg.value}("");
+        require(success);
         emit Transfer(address(0), _to, nextTokenId++);
     }
 

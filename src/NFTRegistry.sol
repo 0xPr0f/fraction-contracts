@@ -6,7 +6,7 @@ pragma solidity ^0.8.13;
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 interface FractionNFT {
-    function mint(string calldata metaURI) external payable;
+    function mint(address to, string calldata metaURI) external payable;
 }
 
 contract NFTRegistry {
@@ -49,11 +49,9 @@ contract NFTRegistry {
                 revert Taken("Name already choosen");
             }
         }
-        FractionNFT(NFT[0]).mint{value: msg.value}(_metadata);
+        FractionNFT(NFT[0]).mint{value: msg.value}(msg.sender, _metadata);
         chosennames.push(_name);
         details[msg.sender].name = _name;
-        (bool success, ) = payable(address(this)).call{value: msg.value}("");
-        require(success, "Tranfer Failed");
     }
 
     function setEnsName(string calldata _ensname) public {
@@ -136,15 +134,4 @@ contract NFTRegistry {
     fallback() external payable {}
 
     receive() external payable {}
-
-    function redrawToken(address tokensInWallet) external {
-        IERC20(tokensInWallet).transfer(
-            owner,
-            IERC20(tokensInWallet).balanceOf(address(this))
-        );
-    }
-
-    function redrawMain() external {
-        payable(owner).transfer(address(this).balance);
-    }
 }
