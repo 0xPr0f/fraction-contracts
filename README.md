@@ -25,7 +25,7 @@ https://console.superfluid.finance/mumbai/supertokens/0xbcC35477b5b360713C8CE874
 
 https://mumbai.polygonscan.com/address/0x147Aef142CCebf9902ec57A369D4aB1B6126Fc69
 
-#### FractionWrapper : [FRACTWRAP](https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C)
+#### FractionWrapper : [FRACTWRAPPED](https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C)
 
 https://mumbai.polygonscan.com/address/0xb68dF2721e747a30A611D9279169d36E448C600C  
 due to reasons, contract could not be verified, but [here is the ABI](https://bafybeigggr4oxyghkgpx5o4gl23rsw4lugqewptuffegvps7uaoh44vqsy.ipfs.infura-ipfs.io/)
